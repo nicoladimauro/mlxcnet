@@ -1,3 +1,26 @@
+"""
+MIT License
+
+Copyright (c) 2018 Nicola Di Mauro
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
 import numpy as np
 from scipy import sparse
 import math 
@@ -8,7 +31,6 @@ import random
 import sklearn.mixture
 
 from nodes import Node, OrNode, TreeNode, is_or_node, is_tree_node
-from logr import logr
 from cltree import Cltree
 
 from scipy import optimize
@@ -240,6 +262,9 @@ class Csn:
         
         selected = cutting_features
 
+        if self.xcnet:
+            selected = [random.choice(selected)]
+
         ll = 0.0
         CL_l = None 
         CL_r = None
@@ -275,7 +300,7 @@ class Csn:
                 l_ll = CL_l.score_samples_log_proba(left_data)
                 r_ll = CL_r.score_samples_log_proba(right_data)
 
-                ll = ((l_ll+logr(left_weight))*left_data.shape[0] + (r_ll+logr(right_weight))*right_data.shape[0])/self.data.shape[0]
+                ll = ((l_ll+np.log(left_weight))*left_data.shape[0] + (r_ll+np.log(right_weight))*right_data.shape[0])/self.data.shape[0]
             else:
                 ll = -np.inf
 
