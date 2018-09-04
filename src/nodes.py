@@ -24,7 +24,6 @@ SOFTWARE.
 
 import numpy as np
 
-
 class Node(object):
     """Base class for all nodes
     """
@@ -34,11 +33,12 @@ class Node(object):
         self.id = Node._id_counter
         Node._id_counter += 1
 
+       
 class OrNode(Node):
     """Class for or nodes
     """
     _node_type = "or"
-
+    
     def __init__(self):
         Node.__init__(self)
         self.left_child = None
@@ -47,6 +47,7 @@ class OrNode(Node):
         self.right_weight = 0.0
         self.or_feature = None
         self.or_feature_scope = None
+
 
     def score_sample_log_proba(self, x):
         """ WRITEME """

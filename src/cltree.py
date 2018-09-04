@@ -191,6 +191,7 @@ class Cltree:
         
         " the tree is represented as a sequence of parents"
 
+        MI = MI + 0.01
         mst = minimum_spanning_tree(-(MI))
         dfs_tree = depth_first_order(mst, directed=False, i_start=0)
 
@@ -201,6 +202,7 @@ class Cltree:
         for p in range(1, self.n_features):
             self.tree[p]=dfs_tree[1][p]
 
+            
         if multilabel == True and rootTree:
             pX = 0
             for i in range(self.n_features-n_labels):

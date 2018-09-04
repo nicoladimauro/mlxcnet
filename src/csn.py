@@ -232,7 +232,7 @@ class Csn:
     def score_samples_proba(self, X):
         Prob = X[:,0]*0.0
         for i in range(X.shape[0]):
-            Prob[i] = np.exp(self._score_sample_log_proba(X[i]))
+            Prob[i] = np.exp(self.score_sample_log_proba(X[i]))
         return Prob
         
 
@@ -264,6 +264,7 @@ class Csn:
 
         if self.xcnet:
             selected = [random.choice(selected)]
+            bestlik = -np.inf
 
         ll = 0.0
         CL_l = None 

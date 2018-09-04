@@ -25,6 +25,9 @@ import numpy as np
 import csn as CSN
 import itertools
 
+
+
+
 ###############################################################################
 class mlcsn:
     
@@ -98,7 +101,6 @@ class mlcsn:
                 evidence[i]=x[i]
 
             (state, prob) = self.mpe(evidence = evidence)
-
             sum = 0
             for i in range(n_attributes, n_attributes + n_labels):
                 sum += state[i]
@@ -122,6 +124,42 @@ class mlcsn:
                 y += 1
             k += 1
         return predictions
+
+    def compute_predictions_probs(self, X, n_labels):
+        predictions = np.zeros((X.shape[0],n_labels),dtype=np.int)
+        probs = np.zeros((X.shape[0],1),dtype=np.float)
+        n_attributes = X.shape[1]
+        k = 0
+        for x in X:
+            evidence = {}
+            for i in range(n_attributes):
+                evidence[i]=x[i]
+
+            (state, prob) = self.mpe(evidence = evidence)
+            sum = 0
+            for i in range(n_attributes, n_attributes + n_labels):
+                sum += state[i]
+            if sum == 0:
+                # avoiding empty predictions
+                max_state = None
+                max_prob = -np.inf
+                for i in range(n_attributes, n_attributes + n_labels):
+                    evidence[i] = 1
+                    if i > (n_attributes):
+                        del evidence[i-1]
+                    (state1, prob1) = self.mpe(evidence = evidence)
+                    if (prob1 > max_prob):
+                        max_prob = prob1
+                        max_state = state1
+                state = max_state
+                prob = max_prob
+            y = 0
+            for i in range(n_attributes, n_attributes + n_labels):
+                predictions[k,y]=state[i]
+                y += 1
+            probs[k] = prob
+            k += 1
+        return (probs, predictions)
 
     def compute_predictions1(self, X, n_labels):
         predictions = np.zeros((X.shape[0],n_labels),dtype=np.int)
@@ -163,15 +201,9 @@ class mlcsn:
     def marginal_inference(self, X, n_labels):
         predictions = np.zeros((X.shape[0],n_labels),dtype=np.int)
         n_attributes = X.shape[1]
-        x1 = np.zeros(n_attributes + n_labels, dtype=np.int)
-
         probs = np.zeros((n_labels,2))
-        
-
         k = 0
         for x in X:
-            for j in range(n_attributes):
-                x1[j] = x[j]
             for l in range(n_labels):
                 D = {}
                 for j in range(n_attributes):
@@ -186,6 +218,24 @@ class mlcsn:
 
             if np.sum(predictions[k]) == 0:
                 predictions[k, np.argmax(probs[:,1])] = 1
+            k += 1
+
+        return predictions
+
+    def marginal_inference1(self, X, n_labels):
+        predictions = np.zeros((X.shape[0],n_labels),dtype=np.float)
+        n_attributes = X.shape[1]
+        k = 0
+        for x in X:
+            D = {}
+            for j in range(n_attributes):
+                D[j] = x[j]
+            p = np.exp(self.csn.marginal_inference(D))
+            for l in range(n_labels):
+                D[l+n_attributes] = 1
+                prob = np.exp(self.csn.marginal_inference(D))/p
+                predictions[k,l] = prob
+                D.pop(l+n_attributes)
             k += 1
 
         return predictions
